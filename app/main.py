@@ -3,6 +3,7 @@ from typing import Final
 import os
 import sqlite3
 import dbhandler
+import logging
 from dotenv import load_dotenv
 from discord import Intents, Client, Message, app_commands, Object, Interaction
 from responses import get_response
@@ -18,6 +19,15 @@ GUILD_ID: Final[int] = int(os.getenv('GUILD_ID'))
 PATH_TO_DB: Final[str] = os.getenv('PATH_TO_DB')
 
 
+# Set up the logger
+log_file = os.path.join('logs', 'bot.log')
+logging.basicConfig(
+    filename=log_file,
+    level=logging.INFO,
+    format='(%(asctime)s) [%(levelname)s] %(message)s'
+)
+
+
 # Setting up some global variables
 intents: Intents = Intents.default()
 intents.message_content = True
@@ -31,7 +41,7 @@ tree = app_commands.CommandTree(client)
     guild=Object(id=GUILD_ID)
 )
 @app_commands.describe(flag="The flag to submit")
-async def Submit(interaction: Interaction, flag: str) -> None:
+async def submit_flag(interaction: Interaction, flag: str) -> None:
     '''A function for the slash command to submit a flag
 
     Args:
@@ -65,7 +75,7 @@ async def Submit(interaction: Interaction, flag: str) -> None:
     guild=Object(id=GUILD_ID)
 )
 @app_commands.describe(flag="The flag to add", challenge_id="The ID of the CTF challenge")
-async def Add(interaction: Interaction, flag: str, challenge_id: str) -> None:
+async def add_flag(interaction: Interaction, flag: str, challenge_id: str) -> None:
     '''A function for the slash command to add a flag for a challenge
 
     Args:
@@ -94,7 +104,7 @@ async def Add(interaction: Interaction, flag: str, challenge_id: str) -> None:
     guild=Object(id=GUILD_ID)
 )
 @app_commands.describe(challenge_id="The ID of the CTF challenge")
-async def Remove(interaction: Interaction, challenge_id: str):
+async def remove_flags(interaction: Interaction, challenge_id: str):
     '''A function for the slash command to remove all flags from a challenge
 
     Args:
@@ -117,7 +127,7 @@ async def Remove(interaction: Interaction, challenge_id: str):
     guild=Object(id=GUILD_ID)
 )
 @app_commands.describe(challenge_id="The ID of the CTF challenge", challenge_name="The name of the CTF challenge")
-async def AddChallenge(interaction: Interaction, challenge_id: str, challenge_name: str) -> None:
+async def add_challenge(interaction: Interaction, challenge_id: str, challenge_name: str) -> None:
     '''A function for the slash command to add a new CTF challenge
 
     Args:
@@ -154,7 +164,7 @@ async def send_message(message: Message, user_message: str) -> None:
             await message.author.send(response) if is_private else await message.channel.send(response)
 
     except Exception as e:
-        print(e)
+        logging.error(str(e))
 
 
 async def auth_member(interaction: Interaction) -> bool:
@@ -188,7 +198,7 @@ async def on_ready() -> None:
     '''A function that sets up the command tree and indicates the bot is active'''
 
     await tree.sync(guild=Object(id=GUILD_ID))
-    print(f'CyberSpartie is running!')
+    logging.info(f'CyberSpartie is running!')
 
 
 @client.event
@@ -216,5 +226,10 @@ def main() -> None:
 
 
 if __name__ == '__main__':
-    dbhandler.intitialize_table(PATH_TO_DB)
-    main()
+
+    try:
+        dbhandler.intitialize_table(PATH_TO_DB)
+        main()
+
+    except Exception as e:
+        logging.error(str(e))

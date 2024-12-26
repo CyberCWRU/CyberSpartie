@@ -9,6 +9,9 @@ def intitialize_table(path: str) -> None:
 
     Args:
         path: the path to the database
+
+    Raises:
+        Exception if intitializing table fails
     '''
 
     con = sqlite3.connect(path)
@@ -23,8 +26,7 @@ def intitialize_table(path: str) -> None:
     except sqlite3.OperationalError:
         pass
     except Exception as e:
-        print(e)
-        return
+        raise e
 
     try:
         cursor.execute("""CREATE TABLE challengedata (
@@ -36,8 +38,7 @@ def intitialize_table(path: str) -> None:
     except sqlite3.OperationalError:
         pass
     except Exception as e:
-        print(e)
-        return
+        raise e
 
     try:
         cursor.execute("""CREATE TABLE solvetable (
@@ -48,8 +49,7 @@ def intitialize_table(path: str) -> None:
     except sqlite3.OperationalError:
         pass
     except Exception as e:
-        print(e)
-        return
+        raise e
 
     con.commit()
     con.close()
