@@ -1,7 +1,9 @@
 # Imports
 import sqlite3
+import os
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Final
+from dotenv import load_dotenv
 
 
 def intitialize_table(path: str) -> None:
@@ -65,7 +67,7 @@ def add_flag(cursor: sqlite3.Cursor, con: sqlite3.Connection, flag: str, challen
         challenge_id: the ID of the challenge to add the flag to
     '''
 
-    cursor.execute(f"INSERT INTO flagtable VALUES ('{flag}', '{challenge_id}', '{datetime.now()}')")
+    cursor.execute(f"INSERT INTO flagtable (flag, challenge_id, timestamp) VALUES (?, ?, ?)", (flag, challenge_id, str(datetime.now()) ))
     con.commit()
 
 
@@ -100,7 +102,7 @@ def add_solve(cursor: sqlite3.Cursor, con: sqlite3.Connection, challenge_id: str
 
     # Check if the user hasn't already solved the challenge
     if result is None:
-        cursor.execute(f"INSERT INTO solvetable VALUES ('{challenge_id}', '{user_id}', '{datetime.now()}')")
+        cursor.execute(f"INSERT INTO solvetable (challenge_id, user_id, timestamp) VALUES (?, ?, ?)", (challenge_id, user_id, str(datetime.now()) ))
         con.commit()
         return True
 
@@ -137,7 +139,7 @@ def create_challenge(cursor: sqlite3.Cursor, con: sqlite3.Connection, challenge_
         description: the description of the challenge
     '''
 
-    cursor.execute(f"INSERT INTO challengedata VALUES ('{challenge_id}', '{challenge_name}', '{category}', '{description}')")
+    cursor.execute(f"INSERT INTO challengedata (challenge_id, name, category, description) VALUES (?, ?, ?, ?)", (challenge_id, challenge_name, category, description))
     con.commit()
 
 
@@ -160,5 +162,7 @@ def query_solve(cursor: sqlite3.Cursor, con: sqlite3.Connection, flag: str) -> O
 
 
 if __name__ == '__main__':
-    intitialize_table(cursor)
-    con.close()
+
+    load_dotenv()
+    PATH_TO_DB: Final[str] = os.getenv('PATH_TO_DB')
+    intitialize_table(PATH_TO_DB)
