@@ -34,6 +34,23 @@ intents.message_content = True
 client: Client = Client(intents=intents)
 tree = app_commands.CommandTree(client)
 
+HELP_MENU = """```CyberSpartie's Commands:
+
+    - /submit-flag
+        Submits a flag to CyberSpartie
+
+    - /add-flag
+        Add a CyberCWRU CTF flag (requires permissions)
+
+    - /remove-flag
+        Remove a CyberCWRU CTF flag (requires permissions)
+
+    - /create-challenge
+        Create a CyberCWRU CTF challenge (requires permissions)
+
+    - /help
+        Displayes this message```"""
+
 
 @tree.command(
     name = 'submit-flag',
@@ -143,6 +160,17 @@ async def add_challenge(interaction: Interaction, challenge_id: str, challenge_n
         dbhandler.create_challenge(cursor, con, challenge_id, challenge_name, "", "") # The category and description attributes will be implemented later
         con.close()
         await interaction.response.send_message("Successfully created the CTF challenge!", ephemeral=True)
+
+
+@tree.command(
+    name = 'help',
+    description= "Display all of CyberSpartie's commands",
+    guild=Object(id=GUILD_ID)
+)
+async def help(interaction: Interaction):
+    '''A function for the slash command to list all commands'''
+
+    await interaction.response.send_message(HELP_MENU, ephemeral=True)
 
 
 async def send_message(message: Message, user_message: str) -> None:
