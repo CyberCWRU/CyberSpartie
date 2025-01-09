@@ -17,7 +17,7 @@ To set up CyberSpartie, you need to set up a .env file and connect to an existin
     GUILD_ID = <The ID of the discord server here>
     PATH_TO_DB= <The path to your EMPTY sqlite database here>
     ```
-5. Fill in the boilerplate, replacing the \<bracket text> with the descriptions contained within them (remove the <brackets> too)
+5. Fill in the boilerplate, replacing the \<bracket text> with the descriptions contained within them (remove the \<brackets> too)
 6. Run `app/main.py` to start the bot and you're done!
 
 ## License
